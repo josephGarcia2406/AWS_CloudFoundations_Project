@@ -3,7 +3,7 @@ import java.util.Random;
 
 public class Constants {
 
-    public static String URL = "http://ec2-54-174-201-65.compute-1.amazonaws.com";
+    public static String URL = "http://ec2-18-207-153-104.compute-1.amazonaws.com";
     public static Random random;
 
     static {

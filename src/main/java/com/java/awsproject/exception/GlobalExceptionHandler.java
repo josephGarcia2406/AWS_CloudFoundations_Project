@@ -21,6 +21,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
+    // Maneja recurso o ruta no encontrada (404)
+    @ExceptionHandler({
+        org.springframework.web.servlet.NoHandlerFoundException.class,
+        org.springframework.web.servlet.resource.NoResourceFoundException.class
+    })
+    public ResponseEntity<Map<String, String>> handleNotFoundExceptions(Exception ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Recurso no encontrado: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    // Maneja método no soportado (405)
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Map<String, String>> handleMethodNotAllowedExceptions(Exception ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Método no soportado: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(error);
+    }
+
     // Maneja cualquier otro error no contemplado (500)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleAllExceptions(Exception ex) {
