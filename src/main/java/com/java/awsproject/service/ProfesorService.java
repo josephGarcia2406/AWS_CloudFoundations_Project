@@ -23,7 +23,9 @@ public class ProfesorService {
     }
 
     public Profesor save(Profesor Profesor) {
-        Profesor.setId(counter.getAndIncrement());
+        if (Profesor.getId() == null || Profesor.getId() == 0) {
+            Profesor.setId(counter.getAndIncrement());
+        }
         profesores.add(Profesor);
         return Profesor;
     }

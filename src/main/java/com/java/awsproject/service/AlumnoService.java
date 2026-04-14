@@ -25,7 +25,9 @@ public class AlumnoService {
     }
 
     public Alumno save(Alumno alumno) {
-        alumno.setId(counter.getAndIncrement());
+        if (alumno.getId() == null || alumno.getId() == 0) {
+            alumno.setId(counter.getAndIncrement());
+        }
         alumnos.add(alumno);
         return alumno;
     }
