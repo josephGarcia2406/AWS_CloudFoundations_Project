@@ -77,9 +77,10 @@ public class AlumnoController {
     public ResponseEntity<Map<String, String>> uploadFotoPerfil(
             @PathVariable Long id,
             @RequestParam(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
+            @RequestParam(value = "foto", required = false) MultipartFile foto,
             @RequestParam(value = "file", required = false) MultipartFile file) {
         
-        MultipartFile activeFile = (fotoPerfil != null) ? fotoPerfil : file;
+        MultipartFile activeFile = (fotoPerfil != null) ? fotoPerfil : ((foto != null) ? foto : file);
         if (activeFile == null || activeFile.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
@@ -162,7 +163,7 @@ public class AlumnoController {
 
     // POST /alumnos/{id}/session/verify
     @PostMapping("/{id}/session/verify")
-    public ResponseEntity<Void> verify(
+    public ResponseEntity<Map<String, String>> verify(
             @PathVariable Long id,
             @RequestBody(required = false) Map<String, String> body,
             @RequestParam(value = "sessionString", required = false) String sessionStringParam) {
@@ -175,22 +176,28 @@ public class AlumnoController {
         }
 
         if (sessionString == null) {
-            return ResponseEntity.badRequest().build();
+            Map<String, String> err = new HashMap<>();
+            err.put("status", "error");
+            return ResponseEntity.badRequest().body(err);
         }
 
         Optional<Session> sessionOpt = dynamoDbService.findSessionByString(sessionString);
         if (sessionOpt.isPresent()) {
             Session session = sessionOpt.get();
             if (session.getAlumnoId().equals(id) && session.getActive()) {
-                return ResponseEntity.ok().build();
+                Map<String, String> ok = new HashMap<>();
+                ok.put("status", "valid");
+                return ResponseEntity.ok().body(ok);
             }
         }
-        return ResponseEntity.badRequest().build();
+        Map<String, String> invalid = new HashMap<>();
+        invalid.put("status", "invalid");
+        return ResponseEntity.badRequest().body(invalid);
     }
 
     // POST /alumnos/{id}/session/logout
     @PostMapping("/{id}/session/logout")
-    public ResponseEntity<Void> logout(
+    public ResponseEntity<Map<String, String>> logout(
             @PathVariable Long id,
             @RequestBody(required = false) Map<String, String> body,
             @RequestParam(value = "sessionString", required = false) String sessionStringParam) {
@@ -203,13 +210,19 @@ public class AlumnoController {
         }
 
         if (sessionString == null) {
-            return ResponseEntity.badRequest().build();
+            Map<String, String> err = new HashMap<>();
+            err.put("status", "error");
+            return ResponseEntity.badRequest().body(err);
         }
 
         if (dynamoDbService.deactivateSession(sessionString)) {
-            return ResponseEntity.ok().build();
+            Map<String, String> ok = new HashMap<>();
+            ok.put("status", "logged out");
+            return ResponseEntity.ok().body(ok);
         }
-        return ResponseEntity.badRequest().build();
+        Map<String, String> fail = new HashMap<>();
+        fail.put("status", "failure");
+        return ResponseEntity.badRequest().body(fail);
     }
 
     private String generateSessionString() {
