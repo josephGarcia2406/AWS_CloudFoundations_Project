@@ -1,46 +1,51 @@
 package com.java.awsproject.service;
 
 import com.java.awsproject.domain.model.Profesor;
+import com.java.awsproject.repository.ProfesorRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class ProfesorService {
-    // Array en memoria para guardar los datos
-    private final List<Profesor> profesores = new ArrayList<>();
-    private final AtomicLong counter = new AtomicLong(1);
+
+    private final ProfesorRepository profesorRepository;
+
+    public ProfesorService(ProfesorRepository profesorRepository) {
+        this.profesorRepository = profesorRepository;
+    }
 
     public List<Profesor> findAll() {
-        return profesores;
+        return profesorRepository.findAll();
     }
 
     public Optional<Profesor> findById(Long id) {
-        return profesores.stream().filter(a -> a.getId().equals(id)).findFirst();
+        return profesorRepository.findById(id);
     }
 
-    public Profesor save(Profesor Profesor) {
-        if (Profesor.getId() == null || Profesor.getId() == 0) {
-            Profesor.setId(counter.getAndIncrement());
+    public Profesor save(Profesor profesor) {
+        if (profesor.getId() != null && profesor.getId() == 0) {
+            profesor.setId(null);
         }
-        profesores.add(Profesor);
-        return Profesor;
+        return profesorRepository.save(profesor);
     }
 
-    public Optional<Profesor> update(Long id, Profesor ProfesorActualizado) {
-        return findById(id).map(Profesor -> {
-            Profesor.setNombres(ProfesorActualizado.getNombres());
-            Profesor.setApellidos(ProfesorActualizado.getApellidos());
-            Profesor.setNumeroEmpleado(ProfesorActualizado.getNumeroEmpleado());
-            Profesor.setHorasClase(ProfesorActualizado.getHorasClase());
-            return Profesor;
+    public Optional<Profesor> update(Long id, Profesor profesorActualizado) {
+        return profesorRepository.findById(id).map(profesor -> {
+            profesor.setNombres(profesorActualizado.getNombres());
+            profesor.setApellidos(profesorActualizado.getApellidos());
+            profesor.setNumeroEmpleado(profesorActualizado.getNumeroEmpleado());
+            profesor.setHorasClase(profesorActualizado.getHorasClase());
+            return profesorRepository.save(profesor);
         });
     }
 
     public boolean delete(Long id) {
-        return profesores.removeIf(a -> a.getId().equals(id));
+        if (profesorRepository.existsById(id)) {
+            profesorRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

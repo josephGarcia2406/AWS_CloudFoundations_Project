@@ -33,6 +33,7 @@ public class ProfesorController {
 
     @PostMapping
     public ResponseEntity<Profesor> create(@Valid @RequestBody Profesor profesor){
+        profesor.setId(null);
         Profesor nuevoProfesor = profesorService.save(profesor);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoProfesor);
     }

@@ -1,48 +1,57 @@
 package com.java.awsproject.service;
 
 import com.java.awsproject.domain.model.Alumno;
+import com.java.awsproject.repository.AlumnoRepository;
 import org.springframework.stereotype.Service;
 
-
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class AlumnoService {
-    // Array en memoria para guardar los datos
-    private final List<Alumno> alumnos = new ArrayList<>();
-    private final AtomicLong counter = new AtomicLong(1);
+
+    private final AlumnoRepository alumnoRepository;
+
+    public AlumnoService(AlumnoRepository alumnoRepository) {
+        this.alumnoRepository = alumnoRepository;
+    }
 
     public List<Alumno> findAll() {
-        return alumnos;
+        return alumnoRepository.findAll();
     }
 
     public Optional<Alumno> findById(Long id) {
-        return alumnos.stream().filter(a -> a.getId().equals(id)).findFirst();
+        return alumnoRepository.findById(id);
     }
 
     public Alumno save(Alumno alumno) {
-        if (alumno.getId() == null || alumno.getId() == 0) {
-            alumno.setId(counter.getAndIncrement());
+        if (alumno.getId() != null && alumno.getId() == 0) {
+            alumno.setId(null);
         }
-        alumnos.add(alumno);
-        return alumno;
+        return alumnoRepository.save(alumno);
     }
 
     public Optional<Alumno> update(Long id, Alumno alumnoActualizado) {
-        return findById(id).map(alumno -> {
+        return alumnoRepository.findById(id).map(alumno -> {
             alumno.setNombres(alumnoActualizado.getNombres());
             alumno.setApellidos(alumnoActualizado.getApellidos());
             alumno.setMatricula(alumnoActualizado.getMatricula());
             alumno.setPromedio(alumnoActualizado.getPromedio());
-            return alumno;
+            if (alumnoActualizado.getPassword() != null) {
+                alumno.setPassword(alumnoActualizado.getPassword());
+            }
+            if (alumnoActualizado.getFotoPerfilUrl() != null) {
+                alumno.setFotoPerfilUrl(alumnoActualizado.getFotoPerfilUrl());
+            }
+            return alumnoRepository.save(alumno);
         });
     }
 
     public boolean delete(Long id) {
-        return alumnos.removeIf(a -> a.getId().equals(id));
+        if (alumnoRepository.existsById(id)) {
+            alumnoRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

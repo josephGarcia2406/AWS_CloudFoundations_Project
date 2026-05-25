@@ -1,10 +1,9 @@
 package com.java.awsproject;
 
-
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import com.java.awsproject.Constants;
+import com.java.Constants;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

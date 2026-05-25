@@ -1,9 +1,10 @@
-package com.java.awsproject;
+package com.java;
+
 import java.util.Random;
 
 public class Constants {
 
-    public static String URL = "http://ec2-18-207-153-104.compute-1.amazonaws.com";
+    public static String URL = "http://localhost:8080";
     public static Random random;
 
     static {
